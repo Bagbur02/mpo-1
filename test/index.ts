@@ -1,4 +1,4 @@
-import { defineComponent, definePage, createApp, onShow, onError, onTabItemTap, ref } from "../src";
+import { defineComponent, definePage, createApp, onShow, onError, onTabItemTap, ref, PropType } from "../src";
 
 createApp({
   setup(props, ctx) {
@@ -16,39 +16,48 @@ type Custom = {
   a: number,
   b: string
 }
+
 defineComponent({
   props: {
     a: String,
     b: {
+      type: String,
+      value: '1',
+    },
+    b1: {
       type: Number,
       value: 1,
     },
-    c: Symbol,
+    c: {
+      type: Symbol,
+      value: Symbol('symbol')
+    },
     d: {
       type: Array,
       value: ['a', 1]
     },
     e: {
       type: Function,
-      value: function () {
-
-      },
+      value: () => 2,
     },
     f: {
       type: Object,
       value: {
-        a: 'string',
-        b: 1
+        a: 1
       },
       extra: ''
+    },
+    f1: {
+      type: Object,
+      value: { a: 1 }
     },
     g: {
       type: Date,
       value: new Date()
     },
     h: {
-      type: Object,
-      value: { a: 1, b: '2' } as Custom,
+      type: Object as PropType<Custom>,
+      value: { a: 1, b: '2' },
       extra: ''
 
     }

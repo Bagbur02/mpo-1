@@ -1,6 +1,6 @@
 {
   "name": "mpo",
-  "version": "0.1.3",
+  "version": "0.1.5",
   "repository": "https://github.com/reruin/mpo",
   "license": "MIT",
   "main": "dist/index.cjs.js",

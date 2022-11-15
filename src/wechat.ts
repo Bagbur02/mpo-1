@@ -19,40 +19,51 @@ export enum TargetType {
   'NULL' = 0
 }
 
-type BaseTypeConstructor = NumberConstructor | StringConstructor | BooleanConstructor | SymbolConstructor | ArrayConstructor | FunctionConstructor | ObjectConstructor | DateConstructor
-
-type ObjectPropType<T = any> = {
-  type: BaseTypeConstructor
-  value: ObjectInstance<T>
+type PropOption<T = any> = {
+  type: PropType
+  value?: PropValue<T>
   [key: string]: any
 }
 
-type ObjectInstance<T> = T extends { type: infer U, value: infer V, [key: string]: any } ? Instance<U, V> : T
+type PropValue<P> = P extends { type: infer T, value: infer V, [key: string]: any } ? Instance<T, V> : never
 
-type Instance<T, V = any> = T extends NumberConstructor ? number :
-  T extends BooleanConstructor ? boolean :
-  T extends StringConstructor ? string :
-  T extends SymbolConstructor ? symbol :
+export type PropType<T = any> = {
+  (...args: any[]): T | undefined
+}
+
+type Instance<T, V = any> =
   T extends DateConstructor ? Date :
-  T extends ObjectConstructor ? V :
   T extends ArrayConstructor ? V :
-  T extends FunctionConstructor ? V : T
+  T extends ObjectConstructor ? (V extends object ? V : object) :
+  // T extends FunctionConstructor ? (V extends { (...args: any[]): any } ? V : { (...args: any[]): any }) :
+  // basic constructor: Number/Boolean/String/Symbol/ () => type
+  T extends { (...args: any[]): infer D } ? D :
+  T
 
-type PropDefineKey<T = any> = T extends BaseTypeConstructor ? T : ObjectPropType<T>
-type PropDefine<T extends any> = {
+type PropDefineKey<T> =
+  T extends PropType ? T :
+  T extends { type: PropType, [key: string]: any } ? PropOption<T> :
+  never
+
+type PropDefine<T> = {
   [key in keyof T]: PropDefineKey<T[key]>
 }
 
-type PropGetKey<T = any> = T extends BaseTypeConstructor ? Instance<T> : T extends ObjectPropType ? ObjectInstance<T> : T
+type PropGetKey<T = any> =
+  T extends PropType ? Instance<T> :
+  T extends { type: PropType, [key: string]: any } ? PropValue<T> :
+  never
+
 type PropGet<T extends any> = {
-  [key in keyof T]: PropGetKey<T[key]>
+  [K in keyof T]: PropGetKey<T[K]>
 }
+
 
 interface Setup<T, C> {
-  (options?: Readonly<PropGet<T>>, ctx?: C): any
+  (props?: Readonly<PropGet<T>>, ctx?: C): any
 }
 
-interface AppOptions<T extends Object, C> {
+interface AppOptions<T extends Record<string, any>, C> {
   setup: Setup<T, C>,
   props?: PropDefine<T>,
   [key: string]: any,
