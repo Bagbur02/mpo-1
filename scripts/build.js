@@ -1,16 +1,30 @@
-const rollup = require('rollup');
-const { terser } = require('rollup-plugin-terser')
-const typescript = require('@rollup/plugin-typescript')
-const { nodeResolve } = require('@rollup/plugin-node-resolve')
-const replace = require('@rollup/plugin-replace')
-const path = require('path')
-const fs = require('fs/promises')
-const { version, name, dependencies } = require('../package.json')
+// const rollup = require('rollup');
+// const { terser } = require('rollup-plugin-terser')
+// const typescript = require('@rollup/plugin-typescript')
+// const { nodeResolve } = require('@rollup/plugin-node-resolve')
+// const replace = require('@rollup/plugin-replace')
+// const path = require('path')
+// const fs = require('fs/promises')
+// const { version, name, dependencies } = require('../package.json')
+
+import * as rollup from 'rollup'
+import { terser } from 'rollup-plugin-terser'
+import typescript from '@rollup/plugin-typescript'
+import { nodeResolve } from '@rollup/plugin-node-resolve'
+import replace from '@rollup/plugin-replace'
+import path from 'path'
+import { createRequire } from "module";
+import { fileURLToPath } from 'url';
+
+const require = createRequire(import.meta.url);
+
+const { version, name, dependencies } = require("../package.json");
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const resolve = p => {
   return path.resolve(__dirname, '../', p)
 }
-
 
 const buildEntry = async (opts) => {
   let minify = opts.dest.endsWith('.prd.js')

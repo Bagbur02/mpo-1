@@ -1,8 +1,9 @@
 {
   "name": "mpo",
-  "version": "0.1.5",
+  "version": "0.1.8",
   "repository": "https://github.com/reruin/mpo",
   "license": "MIT",
+  "type": "module",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm-bundler.js",
   "files": [
@@ -12,13 +13,14 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "dev": "tsc -w -p .",
+    "test": "node test/index",
     "build": "node scripts/build.js"
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^13.0.6",
     "@rollup/plugin-replace": "^3.0.0",
     "@rollup/plugin-typescript": "^8.3.0",
-    "@types/wechat-miniprogram": "^3.4.0",
+    "miniprogram-api-typings": "^3.9.1",
     "rollup": "^2.59.0",
     "rollup-plugin-terser": "^7.0.2",
     "ts-node": "^10.2.1",

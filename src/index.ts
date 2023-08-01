@@ -1,6 +1,8 @@
 
-export { ref, computed, Ref, reactive, effectScope, isRef, isReactive, toRef, toRefs, toRaw } from '@vue/reactivity'
+export * from '@vue/reactivity'
 
-export { watch } from './watch'
+export * from './watch'
 
 export * from './wechat'
+
+export * from './hooks'

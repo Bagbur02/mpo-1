@@ -18,6 +18,7 @@
       "dom",
       "scripthost"
     ],
+    "types":["miniprogram-api-typings"],
     "rootDir": "./src",
     "outDir": "./dist",
     "watch": false

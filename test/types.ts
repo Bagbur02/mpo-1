@@ -1,6 +1,7 @@
-import { defineComponent, definePage, createApp, onShow, onError, onTabItemTap, ref, PropType } from "../src";
+import { defineComponent, definePage, createApp, onShow, onError, onTabItemTap, ref, PropType,useForm ,useEventTarget, createApi } from "../src";
 
 createApp({
+  
   setup(props, ctx) {
     onShow((res) => {
       console.log(res)
@@ -22,7 +23,6 @@ defineComponent({
     a: String,
     b: {
       type: String,
-      value: '1',
     },
     b1: {
       type: Number,
@@ -59,12 +59,12 @@ defineComponent({
       type: Object as PropType<Custom>,
       value: { a: 1, b: '2' },
       extra: ''
-
     }
   },
   setup(props, ctx) {
     let a = props.a
     let b = props.b
+    let b1 = props.b1
     let c = props.c
     let d = props.d
     let e = props.e
@@ -74,18 +74,13 @@ defineComponent({
 
     let val = ref(0)
 
+
     setInterval(() => {
       val.value++
     }, 1000)
   },
 })
 
-
-defineComponent((props, ctx) => {
-  return {
-
-  }
-})
 
 
 definePage((props, ctx) => {
@@ -99,3 +94,36 @@ definePage((props, ctx) => {
 }, {
   onPageScroll: true,
 })
+
+
+const { formData, validate } = useForm({
+  name:{
+    valueType:String,
+    rules:[
+      { required:true , min: 2 , message:'长度不小于2'}
+    ]
+  },
+  age:{
+    value:1
+  }
+})
+
+formData.name = '1'
+formData.age = 2
+
+
+const api = createApi({
+  signin: 'POST /account/signin --bare --save-token',
+  profile: 'GET /account/profile?t=:$t',
+},{
+  args:{
+    bare:String
+  },
+  onRes(d,options){
+    options.contentType
+    options.bare
+    options.contentType
+    // if(options.bare)
+  }
+})
+

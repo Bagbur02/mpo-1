@@ -25,7 +25,7 @@ type PropOption<T = any> = {
   [key: string]: any
 }
 
-type PropValue<P> = P extends { type: infer T, value: infer V, [key: string]: any } ? Instance<T, V> : never
+type PropValue<P> = P extends { type: infer T, value?: infer V, [key: string]: any } ? Instance<T, V> : never
 
 export type PropType<T = any> = {
   (...args: any[]): T | undefined
@@ -60,7 +60,7 @@ type PropGet<T extends any> = {
 
 
 interface Setup<T, C> {
-  (props?: Readonly<PropGet<T>>, ctx?: C): any
+  (props: Readonly<PropGet<T>>, ctx: C): any
 }
 
 interface AppOptions<T extends Record<string, any>, C> {
@@ -173,6 +173,20 @@ const useEvent = <T>(...lifetimes: Array<string>) => {
 const useSetup = (options: any, instance: any) => {
   const originSetData = instance.setData.bind(instance)
 
+  let lastTickUpdate:any = {}
+  let lastTickPending:boolean = false
+  const nextTickSetData = (key:any,value:any) => {
+    lastTickUpdate[key] = value
+    if(!lastTickPending) {
+      lastTickPending = true
+      Promise.resolve().then(() => {
+        originSetData(lastTickUpdate)
+        lastTickUpdate = {}
+        lastTickPending = false
+      })
+    }
+  }
+
   const rawData: Record<string, any> = {}
   // effectData: any = reactive({})
   const refData: any = {}
@@ -218,12 +232,14 @@ const useSetup = (options: any, instance: any) => {
 
   Object.keys(proxyData).forEach((key: string) => {
     watch(proxyData[key], (nv: any) => {
-      originSetData({ [key]: nv })
+      // originSetData({ [key]: nv })
+      nextTickSetData(key, nv)
     }, { deep: true })
   })
   Object.keys(refData).forEach((key: string) => {
     watch(refData[key], (nv: any) => {
-      originSetData({ [key]: nv })
+      // originSetData({ [key]: nv })
+      nextTickSetData(key, nv)
     }, { deep: true })
   })
 
@@ -241,7 +257,7 @@ const createContext = (context: any, methods: Array<string>, props: Record<strin
   return ctx
 }
 
-export const createApp = <T = WechatMiniprogram.App.LaunchShowOption>(options: AppOptions<T, any> | Setup<T, AppContext>) => {
+export const createApp = <T extends Record<string, any>>(options: AppOptions<T, any> | Setup<T, AppContext>) => {
 
   if (typeof options == 'function') {
     options = { setup: options }
@@ -258,7 +274,7 @@ export const createApp = <T = WechatMiniprogram.App.LaunchShowOption>(options: A
       const scope = this[EFFECT_SCOPE] = effectScope()
 
       scope.run(() => {
-        let options: any = setup?.(shallowReactive(query as any)) || {}
+        let options: any = setup?.(shallowReactive(query as any),{}) || {}
 
         for (let key of Object.keys(options)) {
           let val = options[key]
@@ -275,7 +291,7 @@ export const createApp = <T = WechatMiniprogram.App.LaunchShowOption>(options: A
 }
 
 
-export const definePage = <T>(options: AppOptions<T, PageContext> | Setup<T, PageContext>, config?: InitConfig): void => {
+export const definePage = <T extends Record<string,any>>(options: AppOptions<T, PageContext> | Setup<T, PageContext>, config?: InitConfig): void => {
 
   if (typeof options == 'function') {
     options = { setup: options } as AppOptions<T, PageContext>
@@ -319,7 +335,7 @@ export const definePage = <T>(options: AppOptions<T, PageContext> | Setup<T, Pag
   Page(newOpts)
 }
 
-export const defineComponent = <T>(options: AppOptions<T, ComponentContext> | Setup<T, ComponentContext>, config?: InitConfig) => {
+export const defineComponent = <T extends Record<string, any>>(options: AppOptions<T, ComponentContext> | Setup<T, ComponentContext>, config?: InitConfig) => {
 
   if (typeof options == 'function') {
     options = { setup: options }
